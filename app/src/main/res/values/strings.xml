@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Ora</string>
+    <string name="configure_settings_activity">xyz.gatling.ora.MainActivity</string>
+</resources>

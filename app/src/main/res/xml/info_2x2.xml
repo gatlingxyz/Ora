@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/loading"
+    android:configure="@string/configure_settings_activity"
+    android:resizeMode="3"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="110dp"
+    android:widgetCategory="3" />
