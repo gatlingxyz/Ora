@@ -21,6 +21,7 @@ public class OraWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.v("TAVON", "received " + intent.getAction());
+        context.startService(new Intent(context, OraWorkerService.class));
         super.onReceive(context, intent);
     }
 
@@ -38,8 +39,7 @@ public class OraWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        CustomizationHandler.getInstance(context
-        ).updateWidgets(context, appWidgetManager, appWidgetIds);
+        CustomizationHandler.getInstance(context).updateWidgets(context, appWidgetManager, appWidgetIds);
     }
 
 }
