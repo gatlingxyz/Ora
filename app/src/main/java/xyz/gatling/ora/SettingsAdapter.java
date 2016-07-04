@@ -1,9 +1,7 @@
 package xyz.gatling.ora;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -17,18 +15,18 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
     @Override
     public SettingsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new SettingsViewHolder(new SettingsItem(parent.getContext()));
+        return new SettingsViewHolder(new SettingsItemView(parent.getContext()));
     }
 
     @Override
     public void onBindViewHolder(SettingsViewHolder holder, int position) {
         SettingsListItem item = settingsListItems.get(position);
-        holder.settingsItem.setTitleAndSubtitle(item.title, item.subtitle);
+        holder.settingsItemView.setTitleAndSubtitle(item.title, item.subtitle);
         if(item.previewIsText){
-            holder.settingsItem.setRightPreview(item.previewText);
+            holder.settingsItemView.setRightPreview(item.previewText);
         }
         else{
-            holder.settingsItem.setRightPreview(((BitmapDrawable)holder.settingsItem.getContext().getResources().getDrawable(item.previewResId)).getBitmap());
+            holder.settingsItemView.setRightPreview(((BitmapDrawable)holder.settingsItemView.getContext().getResources().getDrawable(item.previewResId)).getBitmap());
         }
     }
 
@@ -39,11 +37,11 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
     public class SettingsViewHolder extends RecyclerView.ViewHolder{
 
-        SettingsItem settingsItem;
+        SettingsItemView settingsItemView;
 
-        public SettingsViewHolder(SettingsItem itemView) {
+        public SettingsViewHolder(SettingsItemView itemView) {
             super(itemView);
-            this.settingsItem = itemView;
+            this.settingsItemView = itemView;
         }
     }
 

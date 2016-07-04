@@ -13,19 +13,19 @@ import android.view.View;
  * Created by gimmi on 7/2/2016.
  */
 
-public class SettingsItem extends View {
+public class SettingsItemView extends View {
 
-    public SettingsItem(Context context) {
+    public SettingsItemView(Context context) {
         super(context);
         init();
     }
 
-    public SettingsItem(Context context, AttributeSet attrs) {
+    public SettingsItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public SettingsItem(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SettingsItemView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -45,7 +45,7 @@ public class SettingsItem extends View {
         setBackgroundColor(Color.WHITE);
         titleSize = (int)getDp(18);
         subtitleSize = (int)getDp(12);
-        xOrigin = (int)getDp(24);
+        xOrigin = (int)getDp(18);
 
         paint.setAntiAlias(true);
         paint.setSubpixelText(true);
@@ -101,7 +101,7 @@ public class SettingsItem extends View {
         canvas.drawText(subtitle, xOrigin, yOrigin + titleSize, paint);
 
         if(rightPreview != null) {
-            canvas.drawBitmap(rightPreview, getWidth() - xOrigin*2, padding, null);
+            canvas.drawBitmap(rightPreview, getWidth() - getWidth()/5, padding, null);
         }
 
         canvas.drawLine(0, getHeight(), getWidth(), getHeight(), paint);
