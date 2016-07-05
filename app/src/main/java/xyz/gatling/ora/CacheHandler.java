@@ -5,10 +5,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.disklrucache.DiskLruCache;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.cache.DiskCache;
-import com.bumptech.glide.load.engine.cache.DiskCacheAdapter;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
@@ -18,18 +15,20 @@ import xyz.gatling.ora.customization.HeroCustomization;
  * Created by gimmi on 7/4/2016.
  */
 
-
-//https://s3.amazonaws.com/xyz.gatling.ora.heroimages/Ora/Icon.png
-
 public class CacheHandler{
 
-    private static String base = "https://s3.amazonaws.com/xyz.gatling.ora.heroimages/";
+    private static final String BASE = "https://s3.amazonaws.com/xyz.gatling.ora.heroimages/";
+    private static Bitmap defaultBitmap;
+    private static int defaultSize = -1;
 
     public static Bitmap loadImage(Context context, HeroCustomization customization){
-        int size = (int)Util.getDp(context, 400);
+        if(defaultSize == -1){
+            defaultSize = (int)Util.getDp(context, 400);
+        }
+
         try {
             final String chosen = customization.organization.replace(" ", "+") + "/" + customization.whichImage + ".png";
-            String url = base + chosen;
+            String url = BASE + chosen;
 //            Log.v("TAVON", "Attempting to load " + url);
             return Glide.with(context)
                     .load(url)
@@ -37,12 +36,15 @@ public class CacheHandler{
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .fitCenter()
 //                    .listener(listener)
-                    .into(size, size)
+                    .into(defaultSize, defaultSize)
                     .get();
         }
         catch (Exception e){
             e.printStackTrace();
-            return Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            if(defaultBitmap == null){
+                defaultBitmap = Bitmap.createBitmap(defaultSize, defaultSize, Bitmap.Config.ARGB_8888);
+            }
+            return defaultBitmap;
         }
     }
 

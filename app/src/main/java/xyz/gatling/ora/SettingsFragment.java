@@ -15,10 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,10 +80,11 @@ public class SettingsFragment extends Fragment {
 
         final List<SettingsItem> settingsItems = new ArrayList<>();
         organizationSetting = new OrganizationSetting();
-        heroImageCustomization = new HeroImageCustomization();
+        heroSetting = new HeroSetting();
+        transparencySetting = new TransparencySetting();
         settingsItems.add(organizationSetting);
-        settingsItems.add(heroImageCustomization);
-//        settingsItems.add(new SettingsItem("Main Image Transparency", "Select the transparency", "100%", getListDialog(orgs)));
+        settingsItems.add(heroSetting);
+        settingsItems.add(transparencySetting);
 //        settingsItems.add(new SettingsItem("Menu Transparency", "Change the transparency of the overflow menu", "100%", getListDialog(orgs)));
 //        settingsItems.add(new SettingsItem("Time Settings", "Change setting related to the time", "", getListDialog(orgs)));
 //        settingsItems.add(new SettingsItem("Date Settings", "Change settings related to the date", "", getListDialog(orgs)));
@@ -118,7 +120,8 @@ public class SettingsFragment extends Fragment {
 
 
     private OrganizationSetting organizationSetting;
-    private HeroImageCustomization heroImageCustomization;
+    private HeroSetting heroSetting;
+    private SettingsItem transparencySetting;
 
     private class OrganizationSetting extends SettingsItem{
         public OrganizationSetting(){
@@ -134,16 +137,18 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onSettingSelected(String valueSelected) {
             customization.hero.organization = valueSelected;
+            dialog = getSliderDialog(customization.hero.opacity, 255, this);
             previewIsText = true;
             previewText = OraWorkerService.organizationToGreekMapping.get(valueSelected);
-            heroImageCustomization.dialog = getListDialog(OraWorkerService.organizationToHeroMapping.get(valueSelected), heroImageCustomization);
-            heroImageCustomization.dialog.show();
+            heroSetting.dialog = getListDialog(OraWorkerService.organizationToHeroMapping.get(valueSelected), heroSetting);
+            heroSetting.dialog.show();
+            adapter.notifyDataSetChanged();
             onSettingsUpdatedListener.onSettingsUpdated(customization);
         }
     }
 
-    private class HeroImageCustomization extends SettingsItem{
-        public HeroImageCustomization() {
+    private class HeroSetting extends SettingsItem{
+        public HeroSetting() {
             title = "Main image";
             subtitle = "Next, select the main image to display";
             previewIsText = false;
@@ -162,9 +167,29 @@ public class SettingsFragment extends Fragment {
                 @Override
                 protected void onPostExecute(Bitmap bitmap) {
                     previewBitmap = bitmap;
+                    transparencySetting.dialog = getSliderDialog(customization.hero.opacity, 255, transparencySetting);
                     adapter.notifyDataSetChanged();
                 }
             }.execute();
+            onSettingsUpdatedListener.onSettingsUpdated(customization);
+        }
+    }
+
+    private class TransparencySetting extends SettingsItem{
+
+        public TransparencySetting(){
+            title = "Main Image Transparency";
+            subtitle = "Set the transparency of your main image";
+            previewIsText = true;
+            previewText = "100%";
+        }
+
+        @Override
+        public void onSettingSelected(String valueSelected) {
+            int transparency = (Integer.valueOf(valueSelected));
+            previewText = DecimalFormat.getPercentInstance().format(transparency/255.0f);
+            customization.hero.opacity = transparency;
+            adapter.notifyDataSetChanged();
             onSettingsUpdatedListener.onSettingsUpdated(customization);
         }
     }
@@ -230,5 +255,47 @@ public class SettingsFragment extends Fragment {
                 .create();
     }
 
-    
+    private Dialog getSliderDialog(final int initial, final int max, final OnSettingSelectedListener onSettingSelectedListener){
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_slider, null);
+        final SeekBar seekBar = (SeekBar)view.findViewById(R.id.transparency_seeker);
+        final TextView progressView = (TextView)view.findViewById(R.id.transparency_progress);
+        final ImageView preview = (ImageView) view.findViewById(R.id.transparency_preview);
+        preview.setImageBitmap(heroSetting.previewBitmap);
+        preview.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        seekBar.setProgress(initial);
+        seekBar.setMax(max);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressView.setText(DecimalFormat.getPercentInstance().format(progress/(float)max));
+                preview.setAlpha(progress/(float)max);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        return new AlertDialog.Builder(getActivity())
+                .setView(view)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        onSettingSelectedListener.onSettingSelected(String.valueOf(seekBar.getProgress()));
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        seekBar.setProgress(initial);
+                        progressView.setText(DecimalFormat.getPercentInstance().format(initial/(float)max));
+                    }
+                })
+                .create();
+    }
 }

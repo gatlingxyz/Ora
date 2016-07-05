@@ -79,10 +79,12 @@ public class CustomizationHandler {
         protected Bitmap doInBackground(Void... params) {
             RemoteViews remoteViews;
             for(int id : ids) {
-                remoteViews = new RemoteViews(context.getPackageName(), R.layout.include_widget_b);
-                Customization customization = customizationSparseArray.get(id, new Customization());
-                remoteViews.setImageViewBitmap(R.id.widget_consolidated, customization.draw(context));
-                appWidgetManager.updateAppWidget(id, remoteViews);
+                Customization customization = customizationSparseArray.get(id, null);
+                if(customization != null) {
+                    remoteViews = new RemoteViews(context.getPackageName(), R.layout.include_widget_b);
+                    remoteViews.setImageViewBitmap(R.id.widget_consolidated, customization.draw(context));
+                    appWidgetManager.updateAppWidget(id, remoteViews);
+                }
             }
             return null;
         }

@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        appWidgetId = getIntent().getExtras().getInt("appWidgetId", -1);
+        appWidgetId = getIntent().getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
         if(appWidgetId == -1){
             finish();
         }
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         setTitle("Customizing Widget #" + appWidgetId);
         startService(new Intent(this, OraWorkerService.class));
 
-        mainImage = (ImageView) findViewById(R.id.widget_image);
+        mainImage = (ImageView) findViewById(R.id.widget_consolidated);
 
         WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
         if(Build.VERSION.SDK_INT >= 16) {
@@ -50,7 +50,9 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
         onSettingsUpdated(customization);
 
-        if(OraWorkerService.organizationToHeroMapping == null || OraWorkerService.organizationToHeroMapping.isEmpty()){
+        if(OraWorkerService.organizationToHeroMapping == null || OraWorkerService.organizationToHeroMapping.isEmpty() ||
+                OraWorkerService.organizationToGreekMapping == null || OraWorkerService.organizationToGreekMapping.isEmpty()
+                ){
             new S3Task(this, new S3Task.OnFinished() {
                 @Override
                 public void onFinished() {
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     @Override
     public void onBackPressed() {
         CustomizationHandler.getInstance(this).addOrUpdateCustomizationForWidget(appWidgetId, customization);
+
         Intent resultValue = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         sendBroadcast(resultValue);

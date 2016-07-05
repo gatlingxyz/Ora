@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -12,12 +13,11 @@ import java.util.Date;
  * Created by gimmi on 7/2/2016.
  */
 
-public class Customization implements Parcelable{
+public class Customization{
 
     private transient Date snapshot;
 
     private transient Float multiplier;
-    private transient int appWidgetId;
 
     public DateCustomization date;
     public TimeCustomization time;
@@ -29,23 +29,9 @@ public class Customization implements Parcelable{
         hero = new HeroCustomization();
     }
 
-    protected Customization(Parcel in) {
-        appWidgetId = in.readInt();
-    }
-
-    public static final Creator<Customization> CREATOR = new Creator<Customization>() {
-        @Override
-        public Customization createFromParcel(Parcel in) {
-            return new Customization(in);
-        }
-
-        @Override
-        public Customization[] newArray(int size) {
-            return new Customization[size];
-        }
-    };
-
     public Bitmap draw(Context context){
+        String tag = hero.organization + "/" + hero.whichImage;
+        Log.v("TAVON | " + tag, "About to draw Customization");
         Bitmap bitmap = hero.createBitmap(context);
         Canvas canvas = hero.createCanvas(bitmap);
 
@@ -54,6 +40,7 @@ public class Customization implements Parcelable{
         snapshot = new Date();
         time.addCustomization(canvas, snapshot);
         date.addCustomization(canvas, snapshot);
+        Log.v("TAVON | " + tag, "customization drawn");
         return bitmap;
     }
 
@@ -71,15 +58,4 @@ public class Customization implements Parcelable{
             date.y = time.y + time.size;
         }
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(appWidgetId);
-    }
-
 }
