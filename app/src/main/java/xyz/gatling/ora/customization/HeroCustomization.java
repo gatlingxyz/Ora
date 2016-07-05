@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.view.MotionEventCompat;
 
+import xyz.gatling.ora.CacheHandler;
 import xyz.gatling.ora.R;
 
 /**
@@ -14,13 +15,13 @@ import xyz.gatling.ora.R;
  */
 
 public class HeroCustomization {
-    int resId = R.drawable.iota_bg_one;
-    String filepath;
-    int opacity = 100;
-    int overflowOpacity;
+    public String organization = "Ora";
+    public String whichImage = "Icon";
+    public int opacity = 255;
+    public int overflowOpacity = 255;
 
     public Bitmap createBitmap(Context context){
-        Bitmap bitmap = ((BitmapDrawable)context.getResources().getDrawable(resId)).getBitmap();
+        Bitmap bitmap = CacheHandler.loadImage(context, this);
         return bitmap.isMutable() ? bitmap : bitmap.copy(Bitmap.Config.ARGB_8888, true);
     }
 

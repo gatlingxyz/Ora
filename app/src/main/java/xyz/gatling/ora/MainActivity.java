@@ -3,6 +3,8 @@ package xyz.gatling.ora;
 import android.app.WallpaperManager;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,11 +14,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import xyz.gatling.ora.customization.Customization;
 import xyz.gatling.ora.customization.CustomizationHandler;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SettingsFragment.OnSettingsUpdatedListener {
 
     private int appWidgetId;
     private Customization customization;
@@ -33,32 +36,6 @@ public class MainActivity extends AppCompatActivity {
         setTitle("Customizing Widget #" + appWidgetId);
         startService(new Intent(this, OraWorkerService.class));
 
-        //Org
-        //Background
-        //Trans
-        //Overflow
-        //Time
-        // - Size
-        // - Color
-        // - Shadow
-        // - Shadow Rad
-        // - Strokke
-        // + Stroke color
-        // ? Format
-        // ? Ampm cap
-        // ? position, xy
-        //Date
-        // ? Day of week
-        // ? Month/Day
-        // ? year
-        // ? position, xy
-//        settings.setRightPreview(((BitmapDrawable)getResources().getDrawable(R.drawable.iota_bg_two)).getBitmap());
-//        settings.setRightPreview("100%");
-
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(new SettingsAdapter());
-
         mainImage = (ImageView) findViewById(R.id.widget_image);
 
         WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
@@ -69,24 +46,41 @@ public class MainActivity extends AppCompatActivity {
             mainImage.setBackgroundDrawable(wallpaperManager.getDrawable());
         }
 
-        Log.v("TAVON", "About to request Drawer");
-
         customization = CustomizationHandler.getInstance(this).getCustomizationForWidget(appWidgetId);
 
-        mainImage.setImageBitmap(customization.draw(this));
+        onSettingsUpdated(customization);
 
-        mainImage.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                customization.time.x = event.getX();
-                customization.time.y = event.getY();
-                customization.date.x = event.getX();
-                customization.date.y = event.getY()+customization.time.size;
-                mainImage.setImageBitmap(customization.draw(MainActivity.this));
-                return false;
-            }
-        });
+        if(OraWorkerService.organizationToHeroMapping == null || OraWorkerService.organizationToHeroMapping.isEmpty()){
+            new S3Task(this, new S3Task.OnFinished() {
+                @Override
+                public void onFinished() {
+                    showSettings();
+                }
+            }).execute();
+        }
+        else{
+           showSettings();
+        }
 
+//        mainImage.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                customization.time.x = event.getX();
+//                customization.time.y = event.getY();
+//                customization.date.x = event.getX();
+//                customization.date.y = event.getY()+customization.time.size;
+//                onSettingsUpdated(customization);
+//                return false;
+//            }
+//        });
+
+    }
+
+    private void showSettings(){
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.right_panel, SettingsFragment.newInstance(this,
+                        appWidgetId))
+                .commit();
     }
 
     @Override
@@ -97,5 +91,21 @@ public class MainActivity extends AppCompatActivity {
         sendBroadcast(resultValue);
         setResult(RESULT_OK, resultValue);
         super.onBackPressed();
+    }
+
+    @Override
+    public void onSettingsUpdated(final Customization customization) {
+        this.customization = customization;
+        new AsyncTask<Void, Void, Bitmap>(){
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+                return customization.draw(MainActivity.this);
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                mainImage.setImageBitmap(bitmap);
+            }
+        }.execute();
     }
 }

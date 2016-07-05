@@ -1,8 +1,24 @@
 package xyz.gatling.ora;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AnonymousAWSCredentials;
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +29,12 @@ import java.util.List;
 
 public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.SettingsViewHolder>{
 
+    public List<SettingsItem> SettingsItems = new ArrayList<>();
+
+    public SettingsAdapter(List<SettingsItem> SettingsItems) {
+        this.SettingsItems = SettingsItems;
+    }
+
     @Override
     public SettingsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new SettingsViewHolder(new SettingsItemView(parent.getContext()));
@@ -20,19 +42,27 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
 
     @Override
     public void onBindViewHolder(SettingsViewHolder holder, int position) {
-        SettingsListItem item = settingsListItems.get(position);
+        final SettingsItem item = SettingsItems.get(position);
         holder.settingsItemView.setTitleAndSubtitle(item.title, item.subtitle);
         if(item.previewIsText){
             holder.settingsItemView.setRightPreview(item.previewText);
         }
         else{
-            holder.settingsItemView.setRightPreview(((BitmapDrawable)holder.settingsItemView.getContext().getResources().getDrawable(item.previewResId)).getBitmap());
+            holder.settingsItemView.setRightPreview(item.previewBitmap);
         }
+        holder.settingsItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(item.dialog != null) {
+                    item.dialog.show();
+                }
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return settingsListItems.size();
+        return SettingsItems.size();
     }
 
     public class SettingsViewHolder extends RecyclerView.ViewHolder{
@@ -45,36 +75,6 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.Settin
         }
     }
 
-    private static class SettingsListItem{
-        public String title;
-        public String subtitle;
-        public boolean previewIsText;
-        public String previewText;
-        public int previewResId;
-
-        public SettingsListItem(String title, String subtitle, String previewText) {
-            this.title = title;
-            this.subtitle = subtitle;
-            this.previewIsText = true;
-            this.previewText = previewText;
-        }
-
-        public SettingsListItem(String title, String subtitle, int previewResId) {
-            this.title = title;
-            this.subtitle = subtitle;
-            this.previewIsText = false;
-            this.previewResId = previewResId;
-        }
-    }
-
-    public static List<SettingsListItem> settingsListItems = new ArrayList<>();
-    static{
-        settingsListItems.add(new SettingsListItem("Organization", "Select your organization", "AKA"));
-        settingsListItems.add(new SettingsListItem("Main Image", "Select your main image", R.drawable.iota_bg_one));
-        settingsListItems.add(new SettingsListItem("Main Image Transparency", "Select the transparency", "100%"));
-        settingsListItems.add(new SettingsListItem("Menu Transparency", "Change the transparency of the overflow menu", "100%"));
-        settingsListItems.add(new SettingsListItem("Time Settings", "Change setting related to the time", ""));
-        settingsListItems.add(new SettingsListItem("Date Settings", "Change settings related to the date", ""));
-    }
+   
 
 }

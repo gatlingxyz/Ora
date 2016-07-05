@@ -3,6 +3,8 @@ package xyz.gatling.ora.customization;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -16,6 +18,11 @@ import com.google.gson.reflect.TypeToken;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import xyz.gatling.ora.R;
 
@@ -53,29 +60,57 @@ public class CustomizationHandler {
     }
 
     public void updateWidgets(Context context, AppWidgetManager appWidgetManager, int[] ids){
-        RemoteViews remoteViews;
-        for(int id : ids) {
-            remoteViews = new RemoteViews(context.getPackageName(), R.layout.include_widget_b);
-            updateWidget(context, id, remoteViews);
-            appWidgetManager.updateAppWidget(id, remoteViews);
-        }
+        new UpdateTask(context, appWidgetManager, ids).execute();
         save(context);
     }
 
-    private RemoteViews updateWidget(Context context, int id, RemoteViews remoteViews){
-        Customization customization = customizationSparseArray.get(id, new Customization());
-        remoteViews.setImageViewBitmap(R.id.widget_consolidated, customization.draw(context));
-        return remoteViews;
+    private class UpdateTask extends AsyncTask<Void, Void, Bitmap>{
+        private Context context;
+        private AppWidgetManager appWidgetManager;
+        private int[] ids;
+
+        public UpdateTask(Context context, AppWidgetManager appWidgetManager, int[] ids) {
+            this.context = context;
+            this.appWidgetManager = appWidgetManager;
+            this.ids = ids;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            RemoteViews remoteViews;
+            for(int id : ids) {
+                remoteViews = new RemoteViews(context.getPackageName(), R.layout.include_widget_b);
+                Customization customization = customizationSparseArray.get(id, new Customization());
+                remoteViews.setImageViewBitmap(R.id.widget_consolidated, customization.draw(context));
+                appWidgetManager.updateAppWidget(id, remoteViews);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            save(context);
+            context = null;
+        }
     }
 
-    private void save(Context context){
+    public void save(Context context){
         String serialized = new Gson().toJson(customizationSparseArray);
         SharedPreferences sharedPreferences = context.getSharedPreferences("OraCustomizations", 0);
         sharedPreferences
                 .edit()
                 .putString(CustomizationHandler.class.getName(), serialized)
                 .apply();
-        Log.v("TAVON", "Saving: " + serialized);
+//        Log.v("TAVON", "Saving: " + serialized);
+    }
+
+    public void clear(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences("OraCustomizations", 0);
+        sharedPreferences
+                .edit()
+                .clear()
+                .apply();
+        customizationSparseArray = new SparseArray<>();
     }
 
     private void restore(Context context){

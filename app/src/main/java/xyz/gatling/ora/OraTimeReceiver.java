@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-
-import xyz.gatling.ora.customization.Customization;
 import xyz.gatling.ora.customization.CustomizationHandler;
 
 /**
@@ -20,4 +18,5 @@ public class OraTimeReceiver extends BroadcastReceiver {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
         CustomizationHandler.getInstance(context).updateWidgets(context, manager, manager.getAppWidgetIds(new ComponentName(context, OraWidget.class)));
     }
+
 }

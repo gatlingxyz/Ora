@@ -1,4 +1,33 @@
 <resources>
     <string name="app_name">Ora</string>
     <string name="configure_settings_activity">xyz.gatling.ora.MainActivity</string>
+
+
+    <string-array name="settings">
+        <item>Organization,Select your organization</item>
+        <item>Background Image,Select the background image to be used</item>
+        <item>Background Transparency,Change the transparency of the background image</item>
+        <item>Menu Transparency,Change the transparency of the menu button</item>
+        <item>Time Format,Change the format of the time</item>
+        <item>Date Format,Change format of the date</item>
+    </string-array>
+    <string-array name="settings_child_time_list">
+        <item>Time Size,Change size of the time</item>
+        <item>Time Color,Change color of the time</item>
+        <item>"Time Shadow,Change color of the time's shadow"</item>
+        <item>Time Shadow Radius,Change how big the shadow is</item>
+        <item>Time Stroke Size,Change size of the stroke</item>
+        <item>Time Stroke Color,Change the stroke color</item>
+        <item>Time Format,Change how the time appears</item>
+        <item>AM/PM Capitalization,Change capitalization</item>
+    </string-array>
+    <string-array name="settings_child_date_list">
+        <item>Date Size,Change size of the date</item>
+        <item>Date Color,Change color of the date</item>
+        <item>"Date Shadow,Change color of the date's shadow"</item>
+        <item>Date Shadow Radius,Change how big the shadow is</item>
+        <item>Day of Week Format,Thursday</item>
+        <item>Month and Day Format,December 01</item>
+        <item>Year Format,20XX</item>
+    </string-array>
 </resources>

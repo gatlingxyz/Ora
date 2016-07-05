@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.bumptech.glide.Glide;
+
 import xyz.gatling.ora.customization.CustomizationHandler;
 
 /**
@@ -34,6 +36,8 @@ public class OraWidget extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
+        CustomizationHandler.getInstance(context).clear(context);
+        Glide.get(context).clearMemory();
         context.stopService(new Intent(context, OraWorkerService.class));
     }
 
